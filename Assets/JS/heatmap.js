@@ -11,6 +11,7 @@ function main(dataSet) {
   // colors used to represent temp variance in color scale created below
   const colorBand = ['#053061', '#2166ac', '#4393c3', '#92c5de', '#d1e5f0',
     '#f7f7f7', '#fddbc7', '#f4a582', '#d6604d', '#b2182b', '#67001f'];
+  const varianceExtent = d3.extent(dataSet, d => d.variance);
   // creates x scale based on start and end year of data
   const xScale = d3.scaleLinear()
     .domain(d3.extent(dataSet, d => d.year))
@@ -21,7 +22,7 @@ function main(dataSet) {
     .range([height - padding, padding * 1.5]); // accounts for padding
   // creates color scale based on temperature variance in data
   const colorScale = d3.scaleQuantile()
-    .domain(d3.extent(dataSet, d => d.variance))
+    .domain(varianceExtent)
     .range(colorBand);
   // sets up x axis
   const xAxis = d3.axisBottom(xScale)
@@ -95,7 +96,7 @@ function main(dataSet) {
     .style('text-anchor', 'middle')
     .text('Year');
   // custom tick labels
-  svg.selectAll('.randomFiller')
+  svg.selectAll()
     .data(months)
     .enter()
     .append('text')
@@ -103,7 +104,31 @@ function main(dataSet) {
     .attr('y', (d, i) => (padding * 1.5) + (barHeight * 0.6) + (i * barHeight))
     .classed('info', true)
     .style('text-anchor', 'start')
-    .text(d => d); 
+    .text(d => d);
+  // graph color legend
+  const varianceScale = d3.scaleLinear()
+    .domain(varianceExtent)
+    .range([width * 0.6, (width * 0.6) + (colorBand.length * (barHeight * 0.75))]);
+  const legendAxis = d3.axisBottom(varianceScale)
+    .tickFormat(d3.format('.2f'))
+    .tickValues([varianceExtent[0], -5.5, -4, -2, 0, 2, 4, varianceExtent[1]]);
+  // generates data color legend rectangles
+  svg.selectAll()
+    .data(colorBand)
+    .enter()
+    .append('rect')
+    .attr('x', (d, i) => (width * 0.6) + (i * (barHeight * 0.75)))
+    .attr('y', height - (padding * 0.65))
+    .attr('width', barHeight * 0.75)
+    .attr('height', barHeight * 0.5)
+    .style('fill', (d, i) => colorBand[i])
+    .style('stroke', '#000');
+  // calls and appropriately places color legend axis
+  svg.append('g')
+    // translation to move axis down
+    .attr('transform', `translate(-0.5, ${(height - (padding * 0.65)) + (barHeight * 0.5)})`)
+    .classed('info', true)
+    .call(legendAxis);
   // footer text
   svg.append('text')
     .attr('x', width / 3.33)
