@@ -99,7 +99,7 @@ function main(dataSet) {
     .data(months)
     .enter()
     .append('text')
-    .attr('x', padding / 1.2)
+    .attr('x', padding / 1.5)
     .attr('y', (d, i) => (padding * 1.5) + (barHeight * 0.6) + (i * barHeight))
     .classed('info', true)
     .style('text-anchor', 'start')
@@ -121,8 +121,8 @@ function main(dataSet) {
   function tooltipOn(d) {
     d3.event.preventDefault();
     tooltip
-      .style('left', `${d3.event.x + 15}px`)
-      .style('top', `${d3.event.y - (tooltip.node().offsetHeight / 1.5)}px`)
+      .style('left', `${d3.event.x + 10}px`)
+      .style('top', `${d3.event.y}px`)
       .style('opacity', '0.95')
       .html(`
         <p>Year:&nbsp&nbsp${d.year}</p>
